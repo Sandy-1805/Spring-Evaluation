@@ -7,6 +7,7 @@ import com.example.TD_Spring.entity.enums.Unit;
 import com.example.TD_Spring.exception.IngredientNotFoundException;
 import com.example.TD_Spring.repository.IngredientRepository;
 import org.springframework.stereotype.Service;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.List;
 
@@ -19,16 +20,15 @@ public class IngredientService {
         this.ingredientRepository = ingredientRepository;
     }
     
-    public List<Ingredient> getAllIngredients() {
+    public List<Ingredient> getAllIngredients() throws SQLException {
         return ingredientRepository.findAll();
     }
     
-    public Ingredient getIngredientById(Integer id) {
-        return ingredientRepository.findById(id)
-                .orElseThrow(() -> new IngredientNotFoundException("Ingredient.id=" + id + " is not found"));
+    public Ingredient getIngredientById(Integer id) throws SQLException {
+        return ingredientRepository.findById(id);
     }
     
-    public Double getStockValueAt(Integer ingredientId, Instant at, Unit unit) {
+    public Double getStockValueAt(Integer ingredientId, Instant at, Unit unit) throws SQLException {
         Ingredient ingredient = getIngredientById(ingredientId);
         
         double stockQuantity = 0.0;

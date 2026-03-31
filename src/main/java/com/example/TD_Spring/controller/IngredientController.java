@@ -8,6 +8,7 @@ import com.example.TD_Spring.service.IngredientService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.List;
 
@@ -23,13 +24,13 @@ public class IngredientController {
     
     // a) GET /ingredients
     @GetMapping
-    public List<Ingredient> getAllIngredients() {
+    public List<Ingredient> getAllIngredients() throws SQLException {
         return ingredientService.getAllIngredients();
     }
     
     // b) GET /ingredients/{id}
     @GetMapping("/{id}")
-    public Ingredient getIngredientById(@PathVariable Integer id) {
+    public Ingredient getIngredientById(@PathVariable Integer id) throws SQLException {
         return ingredientService.getIngredientById(id);
     }
     
@@ -47,10 +48,15 @@ public class IngredientController {
                     .body("Either mandatory query parameter 'at' or 'unit' is not provided.");
         }
         
-        Double stockQuantity = ingredientService.getStockValueAt(id, at, unit);
-        StockValueResponse response = new StockValueResponse(unit, stockQuantity);
-        
-        return ResponseEntity.ok(response);
+        try {
+            Double stockQuantity = ingredientService.getStockValueAt(id, at, unit);
+            StockValueResponse response = new StockValueResponse(unit, stockQuantity);
+            return ResponseEntity.ok(response);
+        } catch (SQLException e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Database error: " + e.getMessage());
+        }
     }
     
     // Gestionnaire d'exception pour IngredientNotFoundException
